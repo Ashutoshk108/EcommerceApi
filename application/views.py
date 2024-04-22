@@ -1,10 +1,9 @@
 from django.core.cache import cache
-from rest_framework import generics
+from rest_framework import generics, mixins
 from .models import Product, Category, Currency
 from .serializers import ProductSerializer, CategorySerializer, CurrencySerializer
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.core.cache import cache
 from rest_framework.response import Response
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
@@ -16,7 +15,6 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         product_list = cache.get('product_list')
         if product_list:
             return Response(product_list)
-
         # If not cached, fetch the data and cache it
         response = super().list(request, *args, **kwargs)
         cache.set('product_list', response.data, timeout=60 * 5)  # Cache for 5 minutes
@@ -33,13 +31,12 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
         if product:
             serializer = self.get_serializer(product)
             return Response(serializer.data)
-
         # If not cached, fetch the data and cache it
         response = super().retrieve(request, *args, **kwargs)
         cache.set(f'product_{product_id}', response.data, timeout=60 * 5)  # Cache for 5 minutes
         return response
 
-class CategoryListCreateAPIView(generics.ListCreateAPIView):
+class CategoryListCreateAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -48,13 +45,42 @@ class CategoryListCreateAPIView(generics.ListCreateAPIView):
         category_list = cache.get('category_list')
         if category_list:
             return Response(category_list)
-
         # If not cached, fetch the data and cache it
         response = super().list(request, *args, **kwargs)
         cache.set('category_list', response.data, timeout=60 * 5)  # Cache for 5 minutes
         return response
 
-class CurrencyListCreateAPIView(generics.ListCreateAPIView):
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class CategoryRetrieveUpdateDestroyAPIView(mixins.UpdateModelMixin,
+                                           mixins.DestroyModelMixin,
+                                           generics.RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        # Check if the category is cached
+        category_id = kwargs['pk']
+        category = cache.get(f'category_{category_id}')
+        if category:
+            serializer = self.get_serializer(category)
+            return Response(serializer.data)
+        # If not cached, fetch the data and cache it
+        response = super().retrieve(request, *args, **kwargs)
+        cache.set(f'category_{category_id}', response.data, timeout=60 * 5)  # Cache for 5 minutes
+        return response
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+class CurrencyListCreateAPIView(mixins.CreateModelMixin, generics.ListAPIView):
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
 
@@ -63,12 +89,40 @@ class CurrencyListCreateAPIView(generics.ListCreateAPIView):
         currency_list = cache.get('currency_list')
         if currency_list:
             return Response(currency_list)
-
         # If not cached, fetch the data and cache it
         response = super().list(request, *args, **kwargs)
         cache.set('currency_list', response.data, timeout=60 * 5)  # Cache for 5 minutes
         return response
 
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class CurrencyRetrieveUpdateDestroyAPIView(mixins.UpdateModelMixin,
+                                           mixins.DestroyModelMixin,
+                                           generics.RetrieveAPIView):
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        # Check if the currency is cached
+        currency_id = kwargs['pk']
+        currency = cache.get(f'currency_{currency_id}')
+        if currency:
+            serializer = self.get_serializer(currency)
+            return Response(serializer.data)
+        # If not cached, fetch the data and cache it
+        response = super().retrieve(request, *args, **kwargs)
+        cache.set(f'currency_{currency_id}', response.data, timeout=60 * 5)  # Cache for 5 minutes
+        return response
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 @receiver(post_save, sender=Product)

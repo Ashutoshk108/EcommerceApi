@@ -16,6 +16,8 @@ from application.views import (
     ProductRetrieveUpdateDestroyAPIView,
     CategoryListCreateAPIView,
     CurrencyListCreateAPIView,
+    CategoryRetrieveUpdateDestroyAPIView,
+    CurrencyRetrieveUpdateDestroyAPIView
 )
 
 
@@ -36,10 +38,12 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/products/', ProductListCreateAPIView.as_view(), name='product-list-create'),
-    path('api/products/<int:pk>/', ProductRetrieveUpdateDestroyAPIView.as_view(), name='product-retrieve-update-destroy'),
-    path('api/categories/', CategoryListCreateAPIView.as_view(), name='category-list-create'),
-    path('api/currencies/', CurrencyListCreateAPIView.as_view(), name='currency-list-create'),
+    path('api/products', ProductListCreateAPIView.as_view(), name='product-list-create'),
+    path('api/products/<int:pk>', ProductRetrieveUpdateDestroyAPIView.as_view(), name='product-retrieve-update-destroy'),
+    path('api/categories', CategoryListCreateAPIView.as_view(), name='category-list-create'),
+    path('api/categories/<int:pk>', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='category-detail'),
+    path('api/currencies', CurrencyListCreateAPIView.as_view(), name='currency-list-create'),
+    path('api/currencies/<int:pk>', CurrencyRetrieveUpdateDestroyAPIView.as_view(), name='category-detail'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
