@@ -68,7 +68,7 @@ class CurrencyListCreateAPIView(generics.ListCreateAPIView):
         response = super().list(request, *args, **kwargs)
         cache.set('currency_list', response.data, timeout=60 * 5)  # Cache for 5 minutes
         return response
-    
+
 
 
 @receiver(post_save, sender=Product)
