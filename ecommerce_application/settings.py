@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'application'
+    'application',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -73,12 +74,13 @@ WSGI_APPLICATION = 'ecommerce_application.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ashutosh$sample',
+        'NAME': 'ashutosh2135$sample',
         'USER': 'ashutosh2135',
         'PASSWORD': 'Mysql123',
-        'HOST': 'ashutosh2135.mysql.pythonanywhere-services.com',  
+        'HOST': 'ashutosh2135.mysql.pythonanywhere-services.com',
     }
 }
+
 
 
 
